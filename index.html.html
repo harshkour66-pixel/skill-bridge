@@ -1,0 +1,691 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --sb-bg:#0a0f1e;--sb-surface:#111827;--sb-card:#161d2e;--sb-border:#1e2d45;
+    --sb-accent:#4f8ef7;--sb-accent2:#7c3aed;--sb-green:#10b981;--sb-amber:#f59e0b;
+    --sb-red:#ef4444;--sb-text:#e8edf5;--sb-muted:#6b7a9a;--sb-subtle:#3a4a6a;
+    --sb-grad:linear-gradient(135deg,#4f8ef7,#7c3aed);
+    font-family:'Sora',sans-serif;
+  }
+  body{background:var(--sb-bg);color:var(--sb-text);min-height:100vh;overflow-x:hidden}
+  .screen{display:none;min-height:100vh;animation:fadeIn .3s ease}
+  .screen.active{display:flex;flex-direction:column}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .btn{padding:10px 22px;border-radius:10px;border:none;cursor:pointer;font-family:'Sora',sans-serif;font-size:14px;font-weight:500;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+  .btn-primary{background:var(--sb-grad);color:#fff}
+  .btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+  .btn-outline{background:transparent;border:1px solid var(--sb-border);color:var(--sb-text)}
+  .btn-outline:hover{border-color:var(--sb-accent);color:var(--sb-accent)}
+  .btn-sm{padding:6px 14px;font-size:12px}
+  .btn-danger{background:#ef444420;border:1px solid #ef444440;color:var(--sb-red)}
+  .btn-danger:hover{background:#ef444430}
+  .btn-success{background:#10b98120;border:1px solid #10b98140;color:var(--sb-green)}
+  .btn-success:hover{background:#10b98130}
+  .card{background:var(--sb-card);border:1px solid var(--sb-border);border-radius:16px;padding:20px}
+  .tag{display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500;background:#4f8ef715;border:1px solid #4f8ef730;color:var(--sb-accent)}
+  .tag-green{background:#10b98115;border-color:#10b98130;color:var(--sb-green)}
+  .tag-purple{background:#7c3aed15;border-color:#7c3aed30;color:#a78bfa}
+  .tag-amber{background:#f59e0b15;border-color:#f59e0b30;color:var(--sb-amber)}
+  .avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;flex-shrink:0}
+  .input{width:100%;padding:10px 14px;background:#1a2540;border:1px solid var(--sb-border);border-radius:10px;color:var(--sb-text);font-family:'Sora',sans-serif;font-size:14px;outline:none;transition:border .2s}
+  .input:focus{border-color:var(--sb-accent)}
+  .label{font-size:12px;color:var(--sb-muted);margin-bottom:6px;display:block}
+  .stat{text-align:center;padding:16px;background:#1a2540;border-radius:12px}
+  .stat-num{font-size:26px;font-weight:600;background:var(--sb-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .stat-label{font-size:11px;color:var(--sb-muted);margin-top:2px}
+  .score-ring{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;border:2px solid var(--sb-green);color:var(--sb-green)}
+  .nav{background:var(--sb-surface);border-bottom:1px solid var(--sb-border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+  .nav-logo{font-size:18px;font-weight:600;background:var(--sb-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .nav-tabs{display:flex;gap:4px}
+  .nav-tab{padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--sb-muted);transition:all .2s;border:none;background:transparent;font-family:'Sora',sans-serif}
+  .nav-tab.active,.nav-tab:hover{background:#4f8ef720;color:var(--sb-accent)}
+  .sidebar{width:220px;background:var(--sb-surface);border-right:1px solid var(--sb-border);padding:20px 12px;flex-shrink:0;display:flex;flex-direction:column;gap:4px}
+  .sidebar-item{padding:10px 12px;border-radius:10px;font-size:13px;cursor:pointer;color:var(--sb-muted);transition:all .2s;display:flex;align-items:center;gap:10px;border:none;background:transparent;font-family:'Sora',sans-serif;width:100%;text-align:left}
+  .sidebar-item.active{background:#4f8ef720;color:var(--sb-accent)}
+  .sidebar-item:hover:not(.active){background:#ffffff08;color:var(--sb-text)}
+  .content{flex:1;overflow-y:auto;padding:24px}
+  .match-bar{height:6px;background:#1a2540;border-radius:3px;overflow:hidden}
+  .match-fill{height:100%;background:var(--sb-grad);border-radius:3px;transition:width .6s ease}
+  .badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:6px;font-size:11px}
+  .badge-new{background:#10b98120;color:var(--sb-green);border:1px solid #10b98130}
+  .badge-admin{background:#f59e0b20;color:var(--sb-amber);border:1px solid #f59e0b30}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+  .flex{display:flex;align-items:center}
+  .gap8{gap:8px}.gap12{gap:12px}.gap16{gap:16px}.gap20{gap:20px}
+  .mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}.mb24{margin-bottom:24px}
+  .mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}
+  .text-muted{color:var(--sb-muted);font-size:13px}
+  .text-sm{font-size:13px}
+  .text-xs{font-size:11px}
+  .h1{font-size:22px;font-weight:600}.h2{font-size:18px;font-weight:500}.h3{font-size:15px;font-weight:500}
+  .divider{border:none;border-top:1px solid var(--sb-border);margin:16px 0}
+  .alert{padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:16px}
+  .alert-error{background:#ef444415;border:1px solid #ef444430;color:#f87171}
+  .notification-dot{width:8px;height:8px;background:var(--sb-accent);border-radius:50%;flex-shrink:0}
+  .main-layout{display:flex;flex:1;overflow:hidden}
+  .request-card{border-left:3px solid var(--sb-accent);padding:14px;background:#4f8ef708;border-radius:0 10px 10px 0}
+  .skill-chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:default}
+  .offer-chip{background:#10b98115;border:1px solid #10b98130;color:var(--sb-green)}
+  .want-chip{background:#7c3aed15;border:1px solid #7c3aed30;color:#a78bfa}
+  select.input{appearance:none}
+  .mono{font-family:'JetBrains Mono',monospace}
+  .progress-wrap{margin-top:4px}
+</style>
+
+<!-- SCREEN 1: LANDING -->
+<div class="screen active" id="screen-landing" style="background:var(--sb-bg)">
+  <nav class="nav">
+    <span class="nav-logo">SkillBridge</span>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-outline btn-sm" onclick="show('screen-auth','login')">Sign in</button>
+      <button class="btn btn-primary btn-sm" onclick="show('screen-auth','signup')">Get started</button>
+    </div>
+  </nav>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;position:relative;overflow:hidden">
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,#4f8ef720,transparent),radial-gradient(ellipse 50% 40% at 80% 80%,#7c3aed15,transparent)"></div>
+    <div style="position:relative;z-index:1;max-width:640px">
+      <div class="badge badge-new mb16" style="font-size:12px;padding:6px 14px">AI-powered skill matching</div>
+      <h1 style="font-size:44px;font-weight:600;line-height:1.1;margin-bottom:20px">Bridge your skills<br><span style="background:var(--sb-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent">to real opportunities</span></h1>
+      <p style="color:var(--sb-muted);font-size:16px;line-height:1.6;margin-bottom:32px">SkillBridge connects students with internships, projects, and collaborations using intelligent skill matching — and lets you swap knowledge with peers.</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="show('screen-auth','signup')">Create free account</button>
+        <button class="btn btn-outline" onclick="demoLogin('student')">View student demo</button>
+      </div>
+    </div>
+  </div>
+  <div style="padding:40px 24px;max-width:900px;margin:0 auto;width:100%">
+    <div class="grid3" style="gap:20px">
+      <div class="card" style="text-align:center">
+        <div style="font-size:24px;margin-bottom:12px">🎯</div>
+        <div class="h3 mb8">Smart matching</div>
+        <p class="text-muted">AI compares your skill profile to every opportunity and surfaces the best-fit roles with a match score.</p>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-size:24px;margin-bottom:12px">🔄</div>
+        <div class="h3 mb8">Skill swap</div>
+        <p class="text-muted">Offer what you know, request what you want to learn. Get matched with peers for knowledge exchange.</p>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-size:24px;margin-bottom:12px">🚀</div>
+        <div class="h3 mb8">Post & discover</div>
+        <p class="text-muted">Students can post internships, projects, and collabs — and discover opportunities tailored to them.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 2: AUTH -->
+<div class="screen" id="screen-auth" style="background:var(--sb-bg);align-items:center;justify-content:center;padding:24px">
+  <div style="width:100%;max-width:400px">
+    <div style="text-align:center;margin-bottom:28px">
+      <div class="nav-logo" style="font-size:22px;display:block;margin-bottom:8px">SkillBridge</div>
+      <p id="auth-subtitle" class="text-muted">Welcome back</p>
+    </div>
+    <div class="card" style="padding:28px">
+      <div id="auth-tabs" style="display:flex;background:#1a2540;border-radius:10px;padding:4px;margin-bottom:24px">
+        <button class="btn" id="tab-login" style="flex:1;border-radius:7px;font-size:13px;padding:8px" onclick="switchTab('login')">Sign in</button>
+        <button class="btn" id="tab-signup" style="flex:1;border-radius:7px;font-size:13px;padding:8px" onclick="switchTab('signup')">Sign up</button>
+      </div>
+      <div id="auth-error" class="alert alert-error" style="display:none"></div>
+      <div style="margin-bottom:16px">
+        <label class="label">Email</label>
+        <input class="input" id="auth-email" type="email" placeholder="you@example.com">
+      </div>
+      <div id="signup-name-wrap" style="margin-bottom:16px;display:none">
+        <label class="label">Full name</label>
+        <input class="input" id="auth-name" type="text" placeholder="Your name">
+      </div>
+      <div style="margin-bottom:20px">
+        <label class="label">Password</label>
+        <input class="input" id="auth-pass" type="password" placeholder="••••••••">
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" id="auth-btn" onclick="handleAuth()">Sign in</button>
+      <div style="text-align:center;margin-top:16px">
+        <span class="text-xs text-muted">Admin demo: kourharshdeep66@gmail.com / any password</span>
+      </div>
+    </div>
+    <button class="btn btn-outline btn-sm" style="display:block;margin:16px auto" onclick="show('screen-landing')">← Back to home</button>
+  </div>
+</div>
+
+<!-- SCREEN 3: STUDENT DASHBOARD -->
+<div class="screen" id="screen-student">
+  <nav class="nav">
+    <span class="nav-logo">SkillBridge</span>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="text-sm text-muted" id="nav-username"></span>
+      <div class="avatar" id="nav-avatar" style="background:#4f8ef730;color:var(--sb-accent);width:32px;height:32px;font-size:12px"></div>
+      <button class="btn btn-outline btn-sm" onclick="logout()">Sign out</button>
+    </div>
+  </nav>
+  <div class="main-layout">
+    <div class="sidebar">
+      <button class="sidebar-item active" id="st-home" onclick="stTab('home')"><span>🏠</span>Home</button>
+      <button class="sidebar-item" id="st-profile" onclick="stTab('profile')"><span>👤</span>My profile</button>
+      <button class="sidebar-item" id="st-opportunities" onclick="stTab('opportunities')"><span>💼</span>Opportunities</button>
+      <button class="sidebar-item" id="st-swap" onclick="stTab('swap')"><span>🔄</span>Skill swap</button>
+      <div style="flex:1"></div>
+      <div class="card" style="padding:12px;margin-top:12px">
+        <div class="text-xs text-muted mb8">Profile completion</div>
+        <div class="match-bar"><div class="match-fill" id="profile-progress" style="width:40%"></div></div>
+        <div class="text-xs text-muted mt8" id="progress-label">40% — add skills</div>
+      </div>
+    </div>
+    <div class="content" id="st-content">
+      <!-- injected by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 4: ADMIN DASHBOARD -->
+<div class="screen" id="screen-admin">
+  <nav class="nav">
+    <span class="nav-logo">SkillBridge</span>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="badge badge-admin">Admin</span>
+      <button class="btn btn-outline btn-sm" onclick="logout()">Sign out</button>
+    </div>
+  </nav>
+  <div class="main-layout">
+    <div class="sidebar">
+      <button class="sidebar-item active" id="ad-overview" onclick="adTab('overview')"><span>📊</span>Overview</button>
+      <button class="sidebar-item" id="ad-users" onclick="adTab('users')"><span>👥</span>All users</button>
+      <button class="sidebar-item" id="ad-opps" onclick="adTab('opps')"><span>💼</span>Opportunities</button>
+      <button class="sidebar-item" id="ad-swaps" onclick="adTab('swaps')"><span>🔄</span>Skill swaps</button>
+    </div>
+    <div class="content" id="ad-content"></div>
+  </div>
+</div>
+
+<script>
+const ADMIN_EMAIL = 'kourharshdeep66@gmail.com';
+let currentUser = null;
+let activeTab = 'login';
+
+const users = [
+  {id:1,name:'Aria Mehta',email:'aria@example.com',skills:['React','Node.js','UI Design'],education:'B.Tech CS — IIT Delhi',interests:['Startups','AI','Open source'],swapOffer:['React'],swapWant:['Machine Learning']},
+  {id:2,name:'Dev Kapoor',email:'dev@example.com',skills:['Python','Data Science','SQL'],education:'B.Sc Statistics — DU',interests:['Finance','ML','Research'],swapOffer:['Python','SQL'],swapWant:['React','Design']},
+  {id:3,name:'Sana Rizvi',email:'sana@example.com',skills:['Figma','Branding','CSS'],education:'B.Des — NID',interests:['Product Design','SaaS'],swapOffer:['Figma','Branding'],swapWant:['JavaScript','Node.js']},
+];
+
+const opportunities = [
+  {id:1,title:'Frontend Intern',company:'TechNest',type:'Internship',skills:['React','CSS'],desc:'Build responsive UIs for our SaaS product.',postedBy:1},
+  {id:2,title:'Data Analyst',company:'FinEdge',type:'Part-time',skills:['Python','SQL','Data Science'],desc:'Analyze fintech transaction data and build dashboards.',postedBy:2},
+  {id:3,title:'Open-source collab — UI library',company:'Community',type:'Collaboration',skills:['React','Figma'],desc:'Help build a component library for developers.',postedBy:3},
+  {id:4,title:'ML Research Assistant',company:'AI Lab IIT',type:'Research',skills:['Python','Machine Learning'],desc:'Assist with NLP model fine-tuning and evaluations.',postedBy:2},
+];
+
+const swapRequests = [
+  {id:1,from:2,to:1,status:'pending',offerSkill:'Python',wantSkill:'React'},
+  {id:2,from:3,to:2,status:'accepted',offerSkill:'Figma',wantSkill:'SQL'},
+];
+
+function show(screenId, tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  if (screenId === 'screen-auth' && tab) switchTab(tab);
+  if (screenId === 'screen-student') renderStudent('home');
+  if (screenId === 'screen-admin') renderAdmin('overview');
+}
+
+function logout() {
+  currentUser = null;
+  show('screen-landing');
+}
+
+function demoLogin(role) {
+  if (role === 'student') {
+    currentUser = users[0];
+    show('screen-student');
+  }
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  const isLogin = tab === 'login';
+  document.getElementById('tab-login').style.background = isLogin ? 'var(--sb-accent)' : 'transparent';
+  document.getElementById('tab-login').style.color = isLogin ? '#fff' : 'var(--sb-muted)';
+  document.getElementById('tab-signup').style.background = !isLogin ? 'var(--sb-accent)' : 'transparent';
+  document.getElementById('tab-signup').style.color = !isLogin ? '#fff' : 'var(--sb-muted)';
+  document.getElementById('signup-name-wrap').style.display = isLogin ? 'none' : 'block';
+  document.getElementById('auth-btn').textContent = isLogin ? 'Sign in' : 'Create account';
+  document.getElementById('auth-subtitle').textContent = isLogin ? 'Welcome back' : 'Create your account';
+  document.getElementById('auth-error').style.display = 'none';
+}
+
+function handleAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const pass = document.getElementById('auth-pass').value;
+  const name = document.getElementById('auth-name').value.trim();
+  const errEl = document.getElementById('auth-error');
+  errEl.style.display = 'none';
+
+  if (!email || !pass) { errEl.textContent = 'Please fill in all fields.'; errEl.style.display = 'block'; return; }
+  if (activeTab === 'signup' && !name) { errEl.textContent = 'Please enter your name.'; errEl.style.display = 'block'; return; }
+
+  if (email === ADMIN_EMAIL) {
+    currentUser = {id:0,name:'Harshdeep Kour',email:ADMIN_EMAIL,role:'admin'};
+    show('screen-admin');
+    return;
+  }
+
+  if (activeTab === 'login') {
+    const found = users.find(u => u.email === email);
+    if (!found) { errEl.textContent = 'Account not found. Try signing up.'; errEl.style.display = 'block'; return; }
+    currentUser = found;
+  } else {
+    const newUser = {id:users.length+1,name,email,skills:[],education:'',interests:[],swapOffer:[],swapWant:[]};
+    users.push(newUser);
+    currentUser = newUser;
+  }
+
+  document.getElementById('nav-username').textContent = currentUser.name;
+  document.getElementById('nav-avatar').textContent = currentUser.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  show('screen-student');
+}
+
+function matchScore(opp) {
+  if (!currentUser || !currentUser.skills || currentUser.skills.length === 0) return 0;
+  const matches = opp.skills.filter(s => currentUser.skills.some(us => us.toLowerCase().includes(s.toLowerCase()) || s.toLowerCase().includes(us.toLowerCase())));
+  return Math.round((matches.length / opp.skills.length) * 100);
+}
+
+function stTab(tab) {
+  document.querySelectorAll('.sidebar-item[id^="st-"]').forEach(el => el.classList.remove('active'));
+  document.getElementById('st-'+tab).classList.add('active');
+  renderStudent(tab);
+}
+
+function renderStudent(tab) {
+  const c = document.getElementById('st-content');
+  if (tab === 'home') c.innerHTML = renderHome();
+  if (tab === 'profile') { c.innerHTML = renderProfile(); bindProfileForm(); }
+  if (tab === 'opportunities') c.innerHTML = renderOpportunities();
+  if (tab === 'swap') c.innerHTML = renderSwap();
+}
+
+function renderHome() {
+  const name = currentUser ? currentUser.name.split(' ')[0] : 'there';
+  const scored = opportunities.map(o => ({...o,score:matchScore(o)})).sort((a,b)=>b.score-a.score).slice(0,2);
+  const myRequests = swapRequests.filter(r => r.to === currentUser?.id && r.status === 'pending');
+  return `
+  <div>
+    <div class="h2 mb8">Good morning, ${name} 👋</div>
+    <p class="text-muted mb24">Here's what's happening on SkillBridge today.</p>
+    <div class="grid3 mb24">
+      <div class="stat"><div class="stat-num">${opportunities.length}</div><div class="stat-label">Opportunities</div></div>
+      <div class="stat"><div class="stat-num">${scored[0]?.score||0}%</div><div class="stat-label">Top match score</div></div>
+      <div class="stat"><div class="stat-num">${myRequests.length}</div><div class="stat-label">Swap requests</div></div>
+    </div>
+    <div class="h3 mb16">Recommended for you</div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px">
+      ${scored.map(o => `
+      <div class="card flex gap16" style="align-items:flex-start">
+        <div class="score-ring" style="border-color:${o.score>=70?'var(--sb-green)':o.score>=40?'var(--sb-amber)':'var(--sb-subtle)'};color:${o.score>=70?'var(--sb-green)':o.score>=40?'var(--sb-amber)':'var(--sb-muted)'}">
+          ${o.score}%
+        </div>
+        <div style="flex:1">
+          <div class="flex gap8 mb8"><span class="h3">${o.title}</span><span class="tag tag-green" style="font-size:11px">${o.type}</span></div>
+          <div class="text-muted mb8">${o.company} · ${o.desc.slice(0,70)}...</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">${o.skills.map(s=>`<span class="tag">${s}</span>`).join('')}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+    ${myRequests.length ? `
+    <div class="h3 mb16">Pending swap requests</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${myRequests.map(r => {
+        const sender = users.find(u=>u.id===r.from);
+        return `<div class="request-card flex gap12" style="align-items:center">
+          <div class="avatar" style="background:#7c3aed30;color:#a78bfa">${sender.name[0]}</div>
+          <div style="flex:1"><strong>${sender.name}</strong> offers <span class="skill-chip offer-chip">${r.offerSkill}</span> for your <span class="skill-chip want-chip">${r.wantSkill}</span></div>
+          <button class="btn btn-success btn-sm" onclick="acceptSwap(${r.id})">Accept</button>
+          <button class="btn btn-danger btn-sm" onclick="rejectSwap(${r.id})">Decline</button>
+        </div>`;
+      }).join('')}
+    </div>` : ''}
+  </div>`;
+}
+
+function renderProfile() {
+  const u = currentUser;
+  const hasSkills = u.skills && u.skills.length > 0;
+  const progress = [u.name, hasSkills, u.education, u.interests?.length].filter(Boolean).length;
+  const pct = Math.round((progress / 4) * 100);
+  setTimeout(() => {
+    const el = document.getElementById('profile-progress');
+    const lbl = document.getElementById('progress-label');
+    if (el) el.style.width = pct+'%';
+    if (lbl) lbl.textContent = pct+'% — '+(['add skills','add education','add interests','complete!'][4-progress]||'complete!');
+  }, 50);
+  return `
+  <div>
+    <div class="h2 mb24">My profile</div>
+    <div class="card mb16">
+      <div class="flex gap16 mb20">
+        <div class="avatar" style="width:56px;height:56px;font-size:18px;background:var(--sb-grad);color:#fff">${u.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>
+        <div><div class="h2">${u.name}</div><div class="text-muted">${u.email}</div></div>
+      </div>
+      <hr class="divider">
+      <div class="mb16">
+        <label class="label">Skills (comma-separated)</label>
+        <input class="input" id="p-skills" value="${(u.skills||[]).join(', ')}" placeholder="e.g. React, Python, Figma">
+      </div>
+      <div class="mb16">
+        <label class="label">Education</label>
+        <input class="input" id="p-edu" value="${u.education||''}" placeholder="e.g. B.Tech CS — IIT Delhi">
+      </div>
+      <div class="mb16">
+        <label class="label">Interests (comma-separated)</label>
+        <input class="input" id="p-interests" value="${(u.interests||[]).join(', ')}" placeholder="e.g. Startups, AI, Design">
+      </div>
+      <button class="btn btn-primary" onclick="saveProfile()">Save profile</button>
+      <span id="save-msg" class="text-muted" style="margin-left:12px;font-size:13px"></span>
+    </div>
+    ${u.skills?.length ? `
+    <div class="card">
+      <div class="h3 mb16">Skill tags</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">${u.skills.map(s=>`<span class="tag">${s}</span>`).join('')}</div>
+    </div>` : ''}
+  </div>`;
+}
+
+function bindProfileForm() {}
+
+function saveProfile() {
+  const skills = document.getElementById('p-skills').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const edu = document.getElementById('p-edu').value.trim();
+  const interests = document.getElementById('p-interests').value.split(',').map(s=>s.trim()).filter(Boolean);
+  currentUser.skills = skills;
+  currentUser.education = edu;
+  currentUser.interests = interests;
+  const idx = users.findIndex(u=>u.id===currentUser.id);
+  if (idx>=0) { users[idx].skills=skills; users[idx].education=edu; users[idx].interests=interests; }
+  document.getElementById('save-msg').textContent = '✓ Saved';
+  setTimeout(()=>{ const m=document.getElementById('save-msg'); if(m) m.textContent=''; },2000);
+  const progress = [currentUser.name, skills.length>0, edu, interests.length>0].filter(Boolean).length;
+  const pct = Math.round((progress/4)*100);
+  const el = document.getElementById('profile-progress');
+  const lbl = document.getElementById('progress-label');
+  if (el) el.style.width = pct+'%';
+  if (lbl) lbl.textContent = pct+'%';
+}
+
+function renderOpportunities() {
+  const scored = opportunities.map(o => ({...o,score:matchScore(o)}));
+  return `
+  <div>
+    <div class="flex mb24" style="justify-content:space-between;align-items:center">
+      <div class="h2">Opportunities</div>
+      <button class="btn btn-primary btn-sm" onclick="showPostOpp()">+ Post opportunity</button>
+    </div>
+    <div id="post-opp-form" style="display:none" class="card mb20">
+      <div class="h3 mb16">Post a new opportunity</div>
+      <div class="mb12"><label class="label">Title</label><input class="input" id="opp-title" placeholder="e.g. Frontend Intern"></div>
+      <div class="mb12"><label class="label">Company / Organisation</label><input class="input" id="opp-company" placeholder="Your company or community"></div>
+      <div class="mb12"><label class="label">Type</label><select class="input" id="opp-type"><option>Internship</option><option>Part-time</option><option>Collaboration</option><option>Research</option></select></div>
+      <div class="mb12"><label class="label">Required skills (comma-separated)</label><input class="input" id="opp-skills" placeholder="e.g. React, Python"></div>
+      <div class="mb16"><label class="label">Description</label><input class="input" id="opp-desc" placeholder="Brief description..."></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" onclick="submitOpp()">Post</button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('post-opp-form').style.display='none'">Cancel</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      ${scored.map(o => `
+      <div class="card flex gap16" style="align-items:flex-start">
+        <div class="score-ring" style="border-color:${o.score>=70?'var(--sb-green)':o.score>=40?'var(--sb-amber)':'var(--sb-subtle)'};color:${o.score>=70?'var(--sb-green)':o.score>=40?'var(--sb-amber)':'var(--sb-muted)'}">
+          ${o.score}%
+        </div>
+        <div style="flex:1">
+          <div class="flex gap8 mb8">
+            <span class="h3">${o.title}</span>
+            <span class="tag tag-green" style="font-size:11px">${o.type}</span>
+            ${o.score >= 70 ? '<span class="badge badge-new">Top match</span>' : ''}
+          </div>
+          <div class="text-muted mb12"><strong style="color:var(--sb-text)">${o.company}</strong> · ${o.desc}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">${o.skills.map(s=>`<span class="tag">${s}</span>`).join('')}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function showPostOpp() {
+  const f = document.getElementById('post-opp-form');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+
+function submitOpp() {
+  const title = document.getElementById('opp-title').value.trim();
+  const company = document.getElementById('opp-company').value.trim();
+  const type = document.getElementById('opp-type').value;
+  const skills = document.getElementById('opp-skills').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const desc = document.getElementById('opp-desc').value.trim();
+  if (!title || !company || !skills.length || !desc) return;
+  opportunities.push({id:opportunities.length+1,title,company,type,skills,desc,postedBy:currentUser.id});
+  renderStudent('opportunities');
+}
+
+function renderSwap() {
+  const myRequests = swapRequests.filter(r => r.to === currentUser?.id);
+  const sent = swapRequests.filter(r => r.from === currentUser?.id);
+  const possible = users.filter(u => u.id !== currentUser?.id && u.swapOffer?.some(s => currentUser?.swapWant?.includes(s)));
+  return `
+  <div>
+    <div class="h2 mb8">Skill swap</div>
+    <p class="text-muted mb24">Offer skills you know. Request skills you want to learn. Get matched with peers.</p>
+
+    <div class="card mb20">
+      <div class="h3 mb16">Your swap profile</div>
+      <div class="grid2 mb16">
+        <div>
+          <label class="label">Skills you can teach (offer)</label>
+          <input class="input" id="swap-offer" value="${(currentUser?.swapOffer||[]).join(', ')}" placeholder="e.g. React, Figma">
+        </div>
+        <div>
+          <label class="label">Skills you want to learn</label>
+          <input class="input" id="swap-want" value="${(currentUser?.swapWant||[]).join(', ')}" placeholder="e.g. Python, ML">
+        </div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="saveSwapProfile()">Update swap profile</button>
+      <span id="swap-save-msg" class="text-muted" style="margin-left:12px;font-size:13px"></span>
+    </div>
+
+    <div class="h3 mb16">Find skill partners</div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px">
+      ${users.filter(u=>u.id!==currentUser?.id).map(u => {
+        const canTeachMe = (u.swapOffer||[]).filter(s => (currentUser?.swapWant||[]).includes(s));
+        const iCanTeach = (currentUser?.swapOffer||[]).filter(s => (u.swapWant||[]).includes(s));
+        const alreadySent = swapRequests.some(r=>r.from===currentUser?.id&&r.to===u.id&&r.status==='pending');
+        return `
+        <div class="card flex gap12" style="align-items:flex-start">
+          <div class="avatar" style="background:#7c3aed30;color:#a78bfa">${u.name[0]}</div>
+          <div style="flex:1">
+            <div class="h3 mb8">${u.name}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+              ${(u.swapOffer||[]).map(s=>`<span class="skill-chip offer-chip">Teaches ${s}</span>`).join('')}
+              ${(u.swapWant||[]).map(s=>`<span class="skill-chip want-chip">Wants ${s}</span>`).join('')}
+            </div>
+            ${canTeachMe.length ? `<div class="text-xs" style="color:var(--sb-green)">✓ Can teach you: ${canTeachMe.join(', ')}</div>` : ''}
+            ${iCanTeach.length ? `<div class="text-xs" style="color:#a78bfa">✓ You can teach them: ${iCanTeach.join(', ')}</div>` : ''}
+          </div>
+          ${alreadySent ? '<span class="badge badge-new">Request sent</span>' : `<button class="btn btn-outline btn-sm" onclick="sendSwapReq(${u.id})">Send request</button>`}
+        </div>`;
+      }).join('')}
+    </div>
+
+    ${myRequests.length ? `
+    <div class="h3 mb16">Requests received</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${myRequests.map(r => {
+        const sender = users.find(u=>u.id===r.from);
+        const statusColor = r.status==='accepted'?'var(--sb-green)':r.status==='rejected'?'var(--sb-red)':'var(--sb-amber)';
+        return `<div class="request-card flex gap12" style="align-items:center">
+          <div class="avatar" style="background:#4f8ef730;color:var(--sb-accent)">${sender?.name[0]||'?'}</div>
+          <div style="flex:1"><strong>${sender?.name}</strong> offers <span class="skill-chip offer-chip">${r.offerSkill}</span> for your <span class="skill-chip want-chip">${r.wantSkill}</span></div>
+          <span style="font-size:12px;color:${statusColor};font-weight:500;text-transform:capitalize">${r.status}</span>
+          ${r.status==='pending'?`<button class="btn btn-success btn-sm" onclick="acceptSwap(${r.id})">Accept</button><button class="btn btn-danger btn-sm" onclick="rejectSwap(${r.id})">Decline</button>`:''}
+        </div>`;
+      }).join('')}
+    </div>` : ''}
+  </div>`;
+}
+
+function saveSwapProfile() {
+  const offer = document.getElementById('swap-offer').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const want = document.getElementById('swap-want').value.split(',').map(s=>s.trim()).filter(Boolean);
+  currentUser.swapOffer = offer;
+  currentUser.swapWant = want;
+  const idx = users.findIndex(u=>u.id===currentUser.id);
+  if (idx>=0) { users[idx].swapOffer=offer; users[idx].swapWant=want; }
+  document.getElementById('swap-save-msg').textContent = '✓ Updated';
+  setTimeout(()=>{ const m=document.getElementById('swap-save-msg'); if(m) m.textContent=''; },2000);
+}
+
+function sendSwapReq(toId) {
+  const toUser = users.find(u=>u.id===toId);
+  const offerSkill = (currentUser?.swapOffer||[])[0] || 'a skill';
+  const wantSkill = (toUser?.swapOffer||[])[0] || 'a skill';
+  swapRequests.push({id:swapRequests.length+1,from:currentUser.id,to:toId,status:'pending',offerSkill,wantSkill});
+  renderStudent('swap');
+}
+
+function acceptSwap(id) {
+  const r = swapRequests.find(r=>r.id===id);
+  if (r) r.status = 'accepted';
+  renderStudent('swap');
+}
+
+function rejectSwap(id) {
+  const r = swapRequests.find(r=>r.id===id);
+  if (r) r.status = 'rejected';
+  renderStudent('swap');
+}
+
+function adTab(tab) {
+  document.querySelectorAll('.sidebar-item[id^="ad-"]').forEach(el => el.classList.remove('active'));
+  document.getElementById('ad-'+tab).classList.add('active');
+  renderAdmin(tab);
+}
+
+function renderAdmin(tab) {
+  const c = document.getElementById('ad-content');
+  if (tab === 'overview') c.innerHTML = renderAdOverview();
+  if (tab === 'users') c.innerHTML = renderAdUsers();
+  if (tab === 'opps') c.innerHTML = renderAdOpps();
+  if (tab === 'swaps') c.innerHTML = renderAdSwaps();
+}
+
+function renderAdOverview() {
+  return `
+  <div>
+    <div class="h2 mb8">Admin overview</div>
+    <p class="text-muted mb24">Platform health and activity at a glance.</p>
+    <div class="grid3 mb24">
+      <div class="stat"><div class="stat-num">${users.length}</div><div class="stat-label">Total students</div></div>
+      <div class="stat"><div class="stat-num">${opportunities.length}</div><div class="stat-label">Opportunities</div></div>
+      <div class="stat"><div class="stat-num">${swapRequests.length}</div><div class="stat-label">Swap requests</div></div>
+    </div>
+    <div class="card mb16">
+      <div class="h3 mb16">Recent registrations</div>
+      ${users.slice(-3).map(u=>`
+      <div class="flex gap12 mb12">
+        <div class="avatar" style="background:#4f8ef730;color:var(--sb-accent)">${u.name[0]}</div>
+        <div><div class="text-sm">${u.name}</div><div class="text-xs text-muted">${u.email}</div></div>
+        <div class="badge badge-new" style="margin-left:auto">Student</div>
+      </div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="h3 mb16">Latest opportunities</div>
+      ${opportunities.slice(-3).map(o=>`
+      <div class="flex gap12 mb12">
+        <div style="flex:1"><div class="text-sm">${o.title}</div><div class="text-xs text-muted">${o.company}</div></div>
+        <span class="tag tag-green" style="font-size:11px">${o.type}</span>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderAdUsers() {
+  return `
+  <div>
+    <div class="h2 mb24">All users (${users.length})</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${users.map(u=>`
+      <div class="card flex gap16">
+        <div class="avatar" style="background:#4f8ef730;color:var(--sb-accent)">${u.name[0]}</div>
+        <div style="flex:1">
+          <div class="flex gap8 mb4"><span class="text-sm" style="font-weight:500">${u.name}</span><span class="badge badge-new">Student</span></div>
+          <div class="text-xs text-muted">${u.email}</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:8px">${(u.skills||[]).map(s=>`<span class="tag" style="font-size:10px;padding:2px 8px">${s}</span>`).join('')}</div>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">Remove</button>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderAdOpps() {
+  return `
+  <div>
+    <div class="h2 mb24">All opportunities (${opportunities.length})</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${opportunities.map(o=>`
+      <div class="card flex gap12">
+        <div style="flex:1">
+          <div class="flex gap8 mb4"><span class="text-sm" style="font-weight:500">${o.title}</span><span class="tag tag-green" style="font-size:11px">${o.type}</span></div>
+          <div class="text-xs text-muted mb8">${o.company} · ${o.desc.slice(0,80)}...</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap">${o.skills.map(s=>`<span class="tag" style="font-size:10px;padding:2px 8px">${s}</span>`).join('')}</div>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="deleteOpp(${o.id})">Delete</button>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderAdSwaps() {
+  return `
+  <div>
+    <div class="h2 mb24">Skill swap requests (${swapRequests.length})</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${swapRequests.map(r=>{
+        const from = users.find(u=>u.id===r.from);
+        const to = users.find(u=>u.id===r.to);
+        const statusColor = r.status==='accepted'?'var(--sb-green)':r.status==='rejected'?'var(--sb-red)':'var(--sb-amber)';
+        return `<div class="card flex gap12">
+          <div style="flex:1">
+            <div class="text-sm mb4"><strong>${from?.name||'?'}</strong> → <strong>${to?.name||'?'}</strong></div>
+            <div class="text-xs text-muted">Offers: <span class="skill-chip offer-chip" style="padding:2px 8px">${r.offerSkill}</span> · Wants: <span class="skill-chip want-chip" style="padding:2px 8px">${r.wantSkill}</span></div>
+          </div>
+          <span style="font-size:12px;color:${statusColor};font-weight:500;text-transform:capitalize">${r.status}</span>
+          <button class="btn btn-danger btn-sm" onclick="deleteSwap(${r.id})">Delete</button>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+function deleteUser(id) {
+  const idx = users.findIndex(u=>u.id===id);
+  if (idx>=0) users.splice(idx,1);
+  renderAdmin('users');
+}
+
+function deleteOpp(id) {
+  const idx = opportunities.findIndex(o=>o.id===id);
+  if (idx>=0) opportunities.splice(idx,1);
+  renderAdmin('opps');
+}
+
+function deleteSwap(id) {
+  const idx = swapRequests.findIndex(r=>r.id===id);
+  if (idx>=0) swapRequests.splice(idx,1);
+  renderAdmin('swaps');
+}
+
+switchTab('login');
+</script>
